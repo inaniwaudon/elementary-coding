@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html style="margin: 0; padding: 0">
+  <head>
+    <title>おえかきアプリケーション</title>
+  </head>
+  <body style="margin: 0; padding: 0; background: #0cf">
+    <nav style="color: #fff; padding: 10px 20px; display: flex; gap: 10px; background: #069;">
+      <label>
+      	色を変える
+        <input type="color" onChange="changeColor(this.value)" />
+      </label>
+      <label>
+      	太さを変える
+        <input type="number" style="width: 40px" value="1" onChange="changeWidth(this.value)" />
+      </label>
+      <button onclick="save()">保存</button>
+      <button onclick="reset()">リセット</button>
+    </nav>
+    <canvas style="width: calc(100% - 40px); height: calc(100vh - 100px); margin: 20px; box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5); background: #fff;"></canvas>
+    <script>
+      // おまじない
+      const canvas = document.getElementsByTagName("canvas")[0];
+      const c = canvas.getContext("2d");
+      const width = window.innerWidth - 40;
+      const height = window.innerHeight - 100;
+      canvas.width = width;
+      canvas.height = height;
+      c.lineCap = "round";
+
+      let down = false;
+      let before;
+
+      // ページが読み込まれたときの処理
+      window.onload = () => {
+        const drawData = localStorage.getItem("draw");
+        if (drawData) {
+          const img = new Image();
+          img.src = drawData;
+          img.onload = () => {
+            c.drawImage(img, 0, 0);
+          };
+        }
+      };
+
+      // マウスボタンが押し下げられたときの処理
+      canvas.onmousedown = (e) => {
+        down = true;
+        before = e;
+      };
+
+      // マウスが動いたときの処理
+      canvas.onmousemove = (e) => {
+        if (down) {
+          c.beginPath();
+          c.moveTo(before.offsetX, before.offsetY);
+          c.lineTo(e.offsetX, e.offsetY);
+          c.stroke();
+          before = e;
+        }
+      };
+
+      // マウスボタンが離されたときの処理
+      canvas.onmouseup = (e) => {
+        down = false;
+      };
+
+      // 色を変える
+
+      // 保存
+      const save = () => {
+        localStorage.setItem("draw", canvas.toDataURL());
+      };
+
+      // リセット
+      const reset = () => {
+        localStorage.removeItem("draw");
+        c.clearRect(0, 0, width, height);
+      };
+    </script>
+  </body>
+</html>
